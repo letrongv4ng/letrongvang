@@ -64,11 +64,13 @@ import {
   doc,
   onSnapshot,
   setDoc,
+  getDoc,
   increment,
   serverTimestamp,
   type Firestore,
   collection,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { getAuth, signInAnonymously, type Auth } from "firebase/auth";
 
@@ -444,13 +446,25 @@ function App() {
         const last = Number(localStorage.getItem(VISITOR_KEY) || "0");
         const shouldCount = now - last > 2 * 60 * 60 * 1000;
 
-        // Không cần getDoc trước, increment thẳng (an toàn hơn)
         if (shouldCount) {
-          await setDoc(ref, { count: increment(1), createdAt: serverTimestamp() }, { merge: true });
+          const snap = await getDoc(ref);
+          if (!snap.exists()) {
+            // lần đầu tạo doc
+            await setDoc(ref, {
+              count: 1,
+              createdAt: serverTimestamp(),
+            });
+          } else {
+            // đã tồn tại, chỉ cần tăng 1
+            await updateDoc(ref, {
+              count: increment(1),
+              createdAt: serverTimestamp(),
+            });
+          }
           localStorage.setItem(VISITOR_KEY, String(now));
         }
 
-        // Live subscribe
+        // Live subscribe visitors
         unsub = onSnapshot(
           ref,
           (snap) => setVisitorCount(snap.data()?.count ?? 0),
