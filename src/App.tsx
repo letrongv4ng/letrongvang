@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, AnimatePresence, useScroll, useTransform, useMotionTemplate } from "framer-motion";
+import { motion, useMotionValue, useSpring, AnimatePresence} from "framer-motion";
 import bgImage from "./assets/background.jpg";
 import pfpImage from "./assets/pfp.jpg";
 
@@ -206,37 +206,6 @@ const Badge: React.FC<{ item: BadgeItem }> = ({ item }) => {
     >
       {inner}
     </motion.div>
-  );
-};
-
-// ---------- Dynamic BG (scroll-reactive blur + vignette) ----------
-const Bg: React.FC = () => {
-  const { scrollYProgress } = useScroll();
-  // Blur tăng nhẹ khi cuộn từ 0 -> 1 (trên trang)
-  const blur = useTransform(scrollYProgress, [0, 1], [1, 6]);
-  const dim = useTransform(scrollYProgress, [0, 1], [0.6, 0.75]);
-  const filter = useMotionTemplate`blur(${blur}px)`;
-
-  return (
-    <div className="fixed inset-0 -z-10">
-      {/* ảnh nền bị blur động theo scroll */}
-      <motion.img
-        src={config.background}
-        alt="background"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter }}
-      />
-      {/* lớp tối có opacity động để tạo chiều sâu */}
-      <motion.div className="absolute inset-0 bg-black" style={{ opacity: dim }} />
-      {/* vignette radial rất nhẹ để gom mắt vào trung tâm */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 50% 30%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.55) 100%)",
-        }}
-      />
-    </div>
   );
 };
 
